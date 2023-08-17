@@ -10,32 +10,42 @@ namespace MN.ExistTravelOutlook
     public partial class ThisAddIn
     {
         private Items _officeInboxItems;
-        private MAPIFolder _officeInboxFolder;
         private const string OfficeMailboxName = "Office Exist Luxury Travel";
         private const string InboxName = "Inbox";
         private const string SmtpSchemaName = "http://schemas.microsoft.com/mapi/proptag/0x39FE001F";
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+            var officeInboxFolder = GetOfficeInboxFolder();
+            if (officeInboxFolder == null)
+            {
+                return;
+            }
+
+            _officeInboxItems = officeInboxFolder.Items;
+            _officeInboxItems.ItemAdd += HandleOfficeInboxItemAdded;
+            Application.ItemSend += HandleItemSent;
+        }
+
+        private MAPIFolder GetOfficeInboxFolder()
+        {
             var mapi = Application.GetNamespace("MAPI");
             var folder = TryGetFolder(mapi, OfficeMailboxName);
             if (folder == null)
             {
                 Error.Show($"{OfficeMailboxName} mailbox is not found");
-                return;
+                return null;
             }
 
-            _officeInboxFolder = TryGetFolder(folder, InboxName);
+            var inboxFolder = TryGetFolder(folder, InboxName);
 
-            if (_officeInboxFolder == null)
+            if (inboxFolder == null)
             {
                 Error.Show($"Inbox in {OfficeMailboxName} mailbox is not found");
-                return;
+                return null;
             }
 
-            _officeInboxItems = _officeInboxFolder.Items;
-            _officeInboxItems.ItemAdd += HandleOfficeInboxItemAdded;
-            Application.ItemSend += HandleItemSent;
+            return inboxFolder;
         }
 
         private static MAPIFolder TryGetFolder(MAPIFolder folder, string folderName)
@@ -147,10 +157,8 @@ namespace MN.ExistTravelOutlook
 
                 var isFirst = true;
 
-                foreach (var tripCode in tripCodes)
+                foreach (var folder in tripCodes.Select(GetOrCreateInboxSubfolder))
                 {
-                    var folder = TryGetFolder(_officeInboxFolder, tripCode) ?? _officeInboxFolder.Folders.Add(tripCode);
-
                     if (!isFirst)
                     {
                         mailItem = mailItem.Copy();
@@ -165,6 +173,12 @@ namespace MN.ExistTravelOutlook
             {
                 Error.Show($"Error handling new email\r\n{e}");
             }
+        }
+
+        private MAPIFolder GetOrCreateInboxSubfolder(string subfolderName)
+        {
+            var inboxFolder = GetOfficeInboxFolder();
+            return TryGetFolder(inboxFolder, subfolderName) ?? inboxFolder.Folders.Add(subfolderName);
         }
 
         private static string GetEmailAddress(Recipient recipient)
