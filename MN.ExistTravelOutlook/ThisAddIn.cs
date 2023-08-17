@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.Office.Interop.Outlook;
 using Exception = System.Exception;
 
@@ -177,8 +178,20 @@ namespace MN.ExistTravelOutlook
 
         private MAPIFolder GetOrCreateInboxSubfolder(string subfolderName)
         {
-            var inboxFolder = GetOfficeInboxFolder();
-            return TryGetFolder(inboxFolder, subfolderName) ?? inboxFolder.Folders.Add(subfolderName);
+            for (var i = 0; i < 5; i++)
+            {
+                try
+                {
+                    var inboxFolder = GetOfficeInboxFolder();
+                    return TryGetFolder(inboxFolder, subfolderName) ?? inboxFolder.Folders.Add(subfolderName);
+                }
+                catch
+                {
+                    Thread.Sleep(1000);
+                }
+            }
+
+            throw new Exception($"Could not create {subfolderName}");
         }
 
         private static string GetEmailAddress(Recipient recipient)
