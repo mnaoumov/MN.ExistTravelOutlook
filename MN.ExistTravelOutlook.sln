@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MN.ExistTravelOutlook", "MN.ExistTravelOutlook\MN.ExistTravelOutlook.csproj", "{B475E379-4025-4403-8E10-814EDF4EF416}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "MN.ExistTravelOutlook.Installer", "MN.ExistTravelOutlook.Installer\MN.ExistTravelOutlook.Installer.vdproj", "{458C4388-7C11-4D46-AAB2-410F9BF9122C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B475E379-4025-4403-8E10-814EDF4EF416}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B475E379-4025-4403-8E10-814EDF4EF416}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B475E379-4025-4403-8E10-814EDF4EF416}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B475E379-4025-4403-8E10-814EDF4EF416}.Release|Any CPU.Build.0 = Release|Any CPU
+		{458C4388-7C11-4D46-AAB2-410F9BF9122C}.Debug|Any CPU.ActiveCfg = Debug
+		{458C4388-7C11-4D46-AAB2-410F9BF9122C}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EA682326-5475-40AB-BE63-2A8042AF9F16}
+	EndGlobalSection
+EndGlobal
