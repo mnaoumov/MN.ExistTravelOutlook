@@ -11,42 +11,33 @@ namespace MN.ExistTravelOutlook
     public partial class ThisAddIn
     {
         private Items _officeInboxItems;
+        private Folders _officeInboxFolders;
         private const string OfficeMailboxName = "Office Exist Luxury Travel";
         private const string InboxName = "Inbox";
         private const string SmtpSchemaName = "http://schemas.microsoft.com/mapi/proptag/0x39FE001F";
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            var officeInboxFolder = GetOfficeInboxFolder();
-            if (officeInboxFolder == null)
-            {
-                return;
-            }
-
-            _officeInboxItems = officeInboxFolder.Items;
-            _officeInboxItems.ItemAdd += HandleOfficeInboxItemAdded;
-            Application.ItemSend += HandleItemSent;
-        }
-
-        private MAPIFolder GetOfficeInboxFolder()
-        {
             var mapi = Application.GetNamespace("MAPI");
             var folder = TryGetFolder(mapi, OfficeMailboxName);
             if (folder == null)
             {
                 Error.Show($"{OfficeMailboxName} mailbox is not found");
-                return null;
+                return;
             }
 
-            var inboxFolder = TryGetFolder(folder, InboxName);
+            var officeInboxFolder = TryGetFolder(folder, InboxName);
 
-            if (inboxFolder == null)
+            if (officeInboxFolder == null)
             {
                 Error.Show($"Inbox in {OfficeMailboxName} mailbox is not found");
-                return null;
+                return;
             }
 
-            return inboxFolder;
+            _officeInboxItems = officeInboxFolder.Items;
+            _officeInboxFolders = officeInboxFolder.Folders;
+            _officeInboxItems.ItemAdd += HandleOfficeInboxItemAdded;
+            Application.ItemSend += HandleItemSent;
         }
 
         private static MAPIFolder TryGetFolder(MAPIFolder folder, string folderName)
@@ -54,10 +45,18 @@ namespace MN.ExistTravelOutlook
             return TryGetFolder(folder.Folders, folderName);
         }
 
-        private static MAPIFolder TryGetFolder(IEnumerable folders, string folderName)
+        private static MAPIFolder TryGetFolder(_Folders folders, string folderName)
         {
-            var mapiFolders = folders.Cast<MAPIFolder>().ToArray();
-            return mapiFolders.FirstOrDefault(f => f.Name == folderName);
+            for (var i = 1; i <= folders.Count; i++)
+            {
+                var folder = folders[i];
+                if (folder.Name == folderName)
+                {
+                    return folder;
+                }
+            }
+
+            return null;
         }
 
         private static MAPIFolder TryGetFolder(_NameSpace nameSpace, string folderName) =>
@@ -178,20 +177,7 @@ namespace MN.ExistTravelOutlook
 
         private MAPIFolder GetOrCreateInboxSubfolder(string subfolderName)
         {
-            for (var i = 0; i < 5; i++)
-            {
-                try
-                {
-                    var inboxFolder = GetOfficeInboxFolder();
-                    return TryGetFolder(inboxFolder, subfolderName) ?? inboxFolder.Folders.Add(subfolderName);
-                }
-                catch
-                {
-                    Thread.Sleep(1000);
-                }
-            }
-
-            throw new Exception($"Could not create {subfolderName}");
+            return TryGetFolder(_officeInboxFolders, subfolderName) ?? _officeInboxFolders.Add(subfolderName);
         }
 
         private static string GetEmailAddress(Recipient recipient)
