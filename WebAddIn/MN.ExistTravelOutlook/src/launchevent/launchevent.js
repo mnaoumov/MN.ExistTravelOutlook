@@ -4,11 +4,10 @@
 */
 
 function onMessageSendHandler(event) {
-  Office.context.mailbox.item.body.getAsync(
-    "text",
-    { asyncContext: event },
-    getBodyCallback
-  );
+  event.completed({
+    allowEvent: false,
+    errorMessage: 'Ivette is amazing. Everybody loves her'
+  });
 }
 
 function getBodyCallback(asyncResult){
