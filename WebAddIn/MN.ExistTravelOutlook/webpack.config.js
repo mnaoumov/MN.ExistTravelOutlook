@@ -21,6 +21,7 @@ module.exports = async (env, options) => {
       polyfill: ["core-js/stable", "regenerator-runtime/runtime"],
       vendor: ["react", "react-dom", "core-js", "@fluentui/react"],
       commands: "./src/commands/commands.ts",
+      "function-file": "./src/function-file/function-file.js",
     },
     output: {
       clean: true,
@@ -65,6 +66,18 @@ module.exports = async (env, options) => {
           {
             from: "./src/launchevent/launchevent.js",
             to: "launchevent.js",
+          },
+        ],
+      }),
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: "./src/function-file/function-file.html",
+            to: "function-file/function-file.html",
+          },
+          {
+            from: "./src/function-file/function-file.js",
+            to: "function-file/function-file.js",
           },
         ],
       }),

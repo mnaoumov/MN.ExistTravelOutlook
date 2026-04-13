@@ -1,72 +1,78 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" xsi:type="MailApp">
-  <Id>b5dbd9e3-4ce9-4cc7-a8b5-ee5d194a42eb</Id>
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp
+    xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+    xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
+    xsi:type="MailApp">
+  <!-- Begin Basic Settings: Add-in metadata, used for all versions of Office unless override provided. -->
+  <!-- IMPORTANT! Id must be unique for your add-in, if you reuse this manifest ensure that you change this id to a new GUID. -->
+  <Id>defb3f0d-5f36-4152-92a2-a15d7acf7fbb</Id>
+  <!--Version. Updates from the store only get triggered if there is a version change. -->
   <Version>1.0.0.0</Version>
-  <ProviderName>Contoso</ProviderName>
+  <ProviderName>David E. Craig</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="MN.ExistTravelOutlook"/>
-  <Description DefaultValue="A template to get started."/>
-  <IconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
-  <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-128.png"/>
-  <SupportUrl DefaultValue="https://www.contoso.com/help"/>
+  <!-- The display name of your add-in. Used on the store and various places of the Office UI such as the add-ins dialog. -->
+  <DisplayName DefaultValue="Outlook Blocking Dialog with ExpandDL Sample" />
+  <Description DefaultValue="This project demonstrates Block-on-Send, Dialogs and the ExpandDL EWS call from a FunctionFile"/>
+   <!-- Icon for your add-in. Used on installation screens and the add-ins dialog. -->
+  <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/logo-filled.png"/>
+  <!-- Domains that will be allowed when navigating. For example, if you use ShowTaskpane and then have an href link, navigation will only be allowed if the domain is on this list. -->
   <AppDomains>
-    <AppDomain>https://www.contoso.com</AppDomain>
+    <AppDomain>https://localhost:3000</AppDomain>
   </AppDomains>
+  <!--End Basic Settings. -->
   <Hosts>
-    <Host Name="Mailbox"/>
+    <Host Name="Mailbox" />
   </Hosts>
   <Requirements>
     <Sets>
-      <Set Name="Mailbox" MinVersion="1.1"/>
+      <Set Name="Mailbox" MinVersion="1.1" />
     </Sets>
   </Requirements>
-  <FormSettings>
-    <Form xsi:type="ItemRead">
+   <FormSettings>
+    <Form xsi:type="ItemEdit">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://localhost:3000/commands.html"/>
-        <RequestedHeight>250</RequestedHeight>
+        <SourceLocation DefaultValue="https://localhost:3000/function-file/function-file.html"/>
       </DesktopSettings>
     </Form>
   </FormSettings>
-  <Permissions>ReadWriteItem</Permissions>
+
+  <Permissions>ReadWriteMailbox</Permissions>
   <Rule xsi:type="RuleCollection" Mode="Or">
-    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read"/>
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit" />
+    <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit" />
   </Rule>
   <DisableEntityHighlighting>false</DisableEntityHighlighting>
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <!-- On Send requires VersionOverridesV1_1 -->
+    <!-- https://dev.office.com/docs/add-ins/outlook/outlook-on-send-addins -->
     <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
       <Requirements>
-        <bt:Sets DefaultMinVersion="1.12">
+        <bt:Sets DefaultMinVersion="1.5">
           <bt:Set Name="Mailbox" />
         </bt:Sets>
       </Requirements>
       <Hosts>
         <Host xsi:type="MailHost">
-          <!-- Event-based activation happens in a lightweight runtime.-->
-          <Runtimes>
-            <!-- HTML file including reference to or inline JavaScript event handlers.
-                This is used by Outlook on the web and on the new Mac UI. -->
-            <Runtime resid="WebViewRuntime.Url">
-              <!-- JavaScript file containing event handlers. This is used by Outlook on Windows. -->
-              <Override type="javascript" resid="JSRuntime.Url"/>
-            </Runtime>
-          </Runtimes>
           <DesktopFormFactor>
-            <ExtensionPoint xsi:type="LaunchEvent">
-              <LaunchEvents>
-                <LaunchEvent Type="OnMessageSend" FunctionName="onMessageSendHandler" SendMode="PromptUser" />
-              </LaunchEvents>
-              <!-- Identifies the runtime to be used (also referenced by the Runtime element). -->
-              <SourceLocation resid="WebViewRuntime.Url"/>
+            <!-- Location of the Functions that UI-less buttons can trigger (ExecuteFunction Actions). -->
+            <FunctionFile resid="functionFile" />
+            <ExtensionPoint xsi:type="Events">
+              <Event Type="ItemSend" FunctionExecution="synchronous" FunctionName="onSendEvent" />
             </ExtensionPoint>
           </DesktopFormFactor>
         </Host>
       </Hosts>
       <Resources>
+        <bt:Images>
+          <bt:Image id="icon16" DefaultValue="https://localhost:3000/assets/icon-16.png"/>
+          <bt:Image id="icon32" DefaultValue="https://localhost:3000/assets/icon-32.png"/>
+          <bt:Image id="icon80" DefaultValue="https://localhost:3000/assets/icon-80.png"/>
+        </bt:Images>
         <bt:Urls>
-          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://localhost:3000/commands.html" />
-          <!-- Entry needed for Outlook on Windows. -->
-          <bt:Url id="JSRuntime.Url" DefaultValue="https://localhost:3000/launchevent.js" />
+          <bt:Url id="functionFile" DefaultValue="https://localhost:3000/function-file/function-file.html"/>
         </bt:Urls>
       </Resources>
     </VersionOverrides>
